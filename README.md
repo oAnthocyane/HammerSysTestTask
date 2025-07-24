@@ -2,8 +2,8 @@
 
 Все API endpoints доступны по пути `/api/`. Документация API доступна по адресам:
 
-*   **Swagger UI:** `http://<хост>:<порт>/swagger/`
-*   **ReDoc:** `http://<хост>:<порт>/redoc/`
+*   **Swagger UI:** `https://scurrilously-excited-squirrelfish.cloudpub.ru/swagger/`
+*   **ReDoc:** `https://scurrilously-excited-squirrelfish.cloudpub.ru/redoc/`
 
 ### Аутентификация
 
