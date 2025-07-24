@@ -1,0 +1,66 @@
+services:
+  referring_db:
+    image: postgres:latest
+    container_name: referring_db
+    environment:
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "${DB_NAME}"
+    ports:
+      - "5444:5432"
+    volumes:
+      - referring_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 2s
+      retries: 10
+    networks:
+      - default
+
+  web:
+    build: .
+
+    container_name: referring_web
+    restart: unless-stopped
+    entrypoint: /docker/web.sh
+    depends_on:
+      referring_db:
+        condition: service_healthy
+    volumes: 
+      - static_volume:/vol/web
+      - .:/app/
+    networks:
+      - default
+
+  nginx:
+    image: nginx:latest
+    container_name: referring_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:8000" 
+    volumes:
+      - static_volume:/vol/web
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - web
+    networks:
+      - default
+
+  scheduler:
+    build: .
+    container_name: referring_scheduler
+    restart: unless-stopped
+    entrypoint: /docker/scheduler.sh
+    depends_on:
+      referring_db:
+        condition: service_healthy
+    networks:
+      - default
+volumes:
+  referring_data:
+  static_volume:
+
+networks:
+  default:
+    driver: bridge
